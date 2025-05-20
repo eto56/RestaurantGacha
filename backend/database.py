@@ -46,7 +46,7 @@ def init_db():
     engine_master.dispose()
 
     # --- ② App DB に接続してテーブルを作成 ---
-    engine_app = create_engine(f'postgresql://test:test@localhost/{db_name}', echo=True)
+    engine_app = create_engine(f'postgresql://{DB_USER}:{DB_PASS}@localhost/{db_name}', echo=True)
     with engine_app.begin() as conn:
         conn.execute(text(f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
