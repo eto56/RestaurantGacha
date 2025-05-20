@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Search</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    label { display: block; margin-top: 10px; }
+    input, select { padding: 5px; width: 200px; }
+    button { margin-top: 15px; padding: 8px 12px; }
+    .result { margin-top: 20px; }
+    .item { border-bottom: 1px solid #ccc; padding: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>レストラン検索</h1>
+  <form id="searchForm">
+    <label>
+      駅名（必須）
+      <input type="text" id="station" name="station" required />
+    </label>
+    <label>
+      ジャンル1（任意）
+      <input type="text" id="genre1" name="genre1" />
+    </label>
+    <label>
+      ジャンル2（任意）
+      <input type="text" id="genre2" name="genre2" />
+    </label>
+    <button type="submit">検索</button>
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const station = document.getElementById('station').value.trim();
+      const genre1 = document.getElementById('genre1').value.trim();
+      const genre2 = document.getElementById('genre2').value.trim();
+
+      // パラメータを組み立て
+      const params = { station };
+      if (genre1) params.genre = genre1;
+      if (genre2) params.subgenre = genre2;
+
+      try {
+        const res = await fetch('/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        });
+        if (!res.ok) throw new Error('検索に失敗しました');
+        const data = await res.json();
+
+          // 結果表示領域をクリア
+        const container = document.getElementById('result');
+        container.innerHTML = '';
+
+        // 単一オブジェクトだったら配列化
+        const list = Array.isArray(data) ? data : [data];
+
+        if (list.length === 0) {
+            container.textContent = '該当するレストランがありませんでした。';
+        } else {
+            list.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <strong>${item.name}</strong><br>
+                カナ: ${item.kana || '-'}<br>
+                <a href="${item.url}" target="_blank">${item.url}</a>
+            `;
+            container.appendChild(div);
+            });
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('result').textContent = 'エラーが発生しました';
+      }
+    });
+  </script>
+</body>
+Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパーグルメ Webサービス</a>
+</html>
