@@ -24,7 +24,7 @@ const msghandler = async (msg) => {
   console.log(params);
 
       try {
-        const res = await fetch('http://localhost:8080/search', {
+        const res = await fetch('http://backend:8080/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(params)
