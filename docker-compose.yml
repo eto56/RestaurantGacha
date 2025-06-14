@@ -1,0 +1,80 @@
+services:
+  backend:
+    image: golang:1.24.1-alpine
+ 
+    depends_on:
+      - db
+    working_dir: /app/
+    volumes:
+      - ./:/app
+
+    
+
+    env_file:
+      - .env
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    
+
+    command: ["sh", "-c", "cd /app/backend && go build -o main . && ./main"]
+
+    ports:
+      - "8081:8080"
+
+  init_db:
+    image: python:3.12-alpine
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: restaurant
+      DB_NAME: ${DB_NAME}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASS}@${DB_NAME}/restaurant
+    volumes: 
+    - .:/app/
+    working_dir: /app
+    command : ["sh", "-c", "pip install -r requirements.txt && cd database && python init_db.py"]
+
+  db:
+    image:  postgres:16-alpine
+     
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: restaurant
+      DB_NAME: ${DB_NAME}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASS}@${DB_NAME}/restaurant
+    ports:
+      - "8082:${DB_PORT}"
+    volumes: 
+    - .:/app/
+    working_dir: /app
+  
+
+  bot:
+    image: node:20-alpine
+ 
+    depends_on:
+      - backend
+    env_file:
+      - .env
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      API_URL: http://backend:8080
+    # Discord Bot は外部公開しないので ports は不要
+
+    working_dir: /app
+    volumes:
+      - .:/app
+ 
+    command: ["sh", "-c", "npm install && node discord/index.js"]
+
+volumes:
+  dbdata:
