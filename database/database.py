@@ -83,7 +83,7 @@ def add_data():
         df.to_sql(
             name='restaurant',
             con=engine,
-            if_exists='append',    
+            if_exists='replace',    
             index=False,
             method='multi',     
             chunksize=500
