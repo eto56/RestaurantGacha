@@ -58,8 +58,9 @@ func init() {
 
 func main() {
 
-	http.HandleFunc("/search", searchHandler)
+	http.HandleFunc("/restaurant", searchHandler)
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/help", helpHandler)
 
 	fmt.Println("Server Start Up........")
 	server := http.Server{

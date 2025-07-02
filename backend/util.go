@@ -77,6 +77,16 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func helpHandler(w http.ResponseWriter, r *http.Request){
+	html, err := template.ParseFiles("../frontend/public/help.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := html.Execute(w, nil); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
