@@ -1,92 +1,47 @@
-# Restaurant GACHA
+# Restaurant GACHA - A Multi-Service Application Portfolio Project
 
-This project is a restaurant search application that allows users to find restaurants based on their location and desired genre. It provides a simple web interface and a Discord bot for searching. The application is powered by a Go backend, a PostgreSQL database, and data from the HotPepper Gourmet Web Service.
+This project is a demonstration of a modern, containerized, multi-service application. It's a restaurant search tool that allows users to find a random restaurant ("gacha" style) based on their location and genre preferences, accessible via both a web interface and a Discord bot.
 
-## Features
 
-- **Web Interface:** A user-friendly web interface to search for restaurants by station and genre.
-- **Discord Bot:** A Discord bot that allows users to search for restaurants directly from their Discord server.
-- **Random Restaurant Selection:** The application returns a randomly selected restaurant that matches the user's search criteria, like a "GACHA" game.
-- **Data from HotPepper:** The restaurant data is sourced from the HotPepper Gourmet Web Service, ensuring a wide variety of options.
-- **Containerized with Docker:** The entire application is containerized using Docker, making it easy to set up and run.
+## Core Features
 
-## Technologies Used
+-   **Random Restaurant Search:** The core "GACHA" feature returns a single, randomly selected restaurant that matches the user's search criteria.
+-   **Dual Interfaces:** Users can interact with the service through either a simple web UI or a Discord bot command.
+-   **External API Integration:** Fetches and processes data from the HotPepper Gourmet Web Service.
+-   **Containerized Deployment:** The entire application stack is managed and deployed with Docker and Docker Compose.
 
-- **Backend:** Go
-- **Frontend:** HTML, JavaScript
-- **Database:** PostgreSQL
-- **Data Fetching:** Python (for interacting with the HotPepper API)
-- **Discord Bot:** Node.js, discord.js
-- **Containerization:** Docker, Docker Compose
+## System Architecture
 
-## Getting Started
+The application is designed using a microservices architecture, where each component is a separate, containerized service that handles a specific business concern.
 
-### Prerequisites
+-   **Go Backend (`backend`):** A lightweight API server written in Go that exposes a `/search` endpoint. It receives search requests, queries the database, and returns a random matching restaurant.
+-   **Node.js Discord Bot (`bot`):** A simple Discord bot that listens for `!` commands. It calls the Go backend's API and replies with the restaurant information in the Discord channel.
+-   **Python Data Pipeline (`init_db` & `scripts`):** A set of Python scripts responsible for the ETL (Extract, Transform, Load) process.
+    1.  `hotpepperAPI.py` fetches thousands of restaurant records from the HotPepper API and saves them to a CSV file.
+    2.  `init_db.py` creates the database schema and loads the data from the CSV into the PostgreSQL database.
+-   **PostgreSQL Database (`db`):** The data store for all restaurant information.
+-   **Nginx/Frontend (`frontend`):** A simple, static HTML/JavaScript frontend for the web interface. (In this setup, the Go server is serving the file directly, but in a larger app, Nginx would be a common choice).
 
-- Docker and Docker Compose installed on your machine.
-- A HotPepper Gourmet Web Service API key.
-- A Discord bot token.
+All services communicate with each other over a Docker network.
 
-### Setup
+## Technology Stack
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/restaurantGACHA.git
-    cd restaurantGACHA
-    ```
+This project intentionally uses a variety of technologies to demonstrate versatility:
 
-2.  **Create a `.env` file:**
-    Create a `.env` file in the root of the project and add the following environment variables:
-
-    ```
-    DB_USER=your_db_user
-    DB_PASS=your_db_password
-    DB_NAME=restaurant
-    DB_PORT=5432
-    DB_HOST=db
-    DB_SSLMODE=disable
-    HOTPEPPER_API_KEY=your_hotpepper_api_key
-    DISCORD_TOKEN=your_discord_bot_token
-    ```
-
-3.  **Fetch Restaurant Data:**
-    Run the following command to fetch restaurant data from the HotPepper API and create a `hotpepper_data.csv` file in the `data` directory.
-
-    ```bash
-    docker-compose run --rm init_db python scripts/hotpepperAPI.py
-    ```
-
-4.  **Build and run the application:**
-    Use Docker Compose to build and start all the services:
-
-    ```bash
-    docker-compose up --build
-    ```
-
-### Usage
-
--   **Web Interface:** Open your web browser and navigate to `http://localhost:8081`. You can then enter a station and genre to search for restaurants.
--   **Discord Bot:** Invite the Discord bot to your server. You can then use the `!` command to search for restaurants. For example:
-    `!新宿 居酒屋`
-
-## Project Structure
-
-```
-.
-├── backend         # Go backend service
-├── database        # Database initialization and management scripts
-├── discord         # Discord bot service
-├── frontend        # Frontend static files
-├── scripts         # Scripts for data fetching, etc.
-├── .env            # Environment variables
-├── docker-compose.yml # Docker Compose configuration
-└── readme.md       # This file
-```
+-   **Backend:** **Go** - Chosen for its performance, simplicity, and low memory footprint, making it ideal for a lightweight API service.
+-   **Discord Bot:** **Node.js** & **discord.js** - A popular and robust choice for building Discord bots, with a rich ecosystem.
+-   **Data Processing:** **Python**, **Pandas**, & **SQLAlchemy** - The de-facto standard for data scripting and ETL tasks, demonstrating data handling capabilities.
+-   **Database:** **PostgreSQL** - A powerful, open-source relational database.
+-   **Containerization:** **Docker** & **Docker Compose** - For creating a reproducible, isolated, and easy-to-manage development and deployment environment. The multi-stage `Dockerfile` is used to create a minimal production image.
 
 ## How It Works
 
-1.  The `scripts/hotpepperAPI.py` script fetches restaurant data from the HotPepper Gourmet Web Service and saves it as a CSV file.
-2.  The `database/init_db.py` script initializes the PostgreSQL database, creates a `restaurant` table, and populates it with the data from the CSV file.
-3.  The Go backend provides a `/search` API endpoint that queries the database for restaurants based on the provided station and genre.
-4.  The frontend sends requests to the backend's `/search` endpoint and displays the results.
-5.  The Discord bot also communicates with the backend's `/search` endpoint to provide restaurant suggestions in a Discord channel.
+1.  **Data Ingestion:** The process starts with the `hotpepperAPI.py` script, which is run manually to populate a `hotpepper_data.csv` file.
+2.  **Database Initialization:** On the first `docker-compose up`, the `init_db` service runs. It connects to the Postgres database, creates the `restaurant` table, and uses Pandas to efficiently load the data from the CSV into the database.
+3.  **Application Runtime:**
+    -   The **Go backend** starts, ready to accept API requests on port `8080`.
+    -   The **Discord bot** starts, logs into the Discord API, and listens for messages.
+4.  **User Interaction:**
+    -   A user on the **web frontend** (served on port `8081`) submits a search. The JavaScript makes a `POST` request to the Go backend's `/search` endpoint.
+    -   A user in **Discord** types `!新宿 居酒屋`. The bot parses this message and makes a similar `POST` request to the Go backend.
+5.  **Response:** The Go backend queries the PostgreSQL database for all restaurants matching the criteria, randomly selects one, and returns it as a JSON response to either the frontend or the bot.
