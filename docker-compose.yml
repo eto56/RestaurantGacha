@@ -1,4 +1,13 @@
 services:
+  frontend:
+    image: node:20-alpine
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+    command: ["sh", "-c", "npm install && npm run build"]
+    ports:
+      - "5173:5173"
+
   backend:
     image: golang:1.24.1-alpine
  
@@ -6,8 +15,8 @@ services:
       - db
     working_dir: /app/
     volumes:
-      - ./:/app
-
+      - ./backend:/app/backend
+      - ./frontend/dist:/app/frontend/dist
     
 
     env_file:
@@ -16,12 +25,12 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
-    
+      BACKEND_URL: ${BACKEND_URL}
 
     command: ["sh", "-c", "cd /app/backend && go build -o main . && ./main"]
 
     ports:
-      - "8081:8080"
+      - "8080:8080"
 
   init_db:
     image: python:3.12-alpine
@@ -54,7 +63,7 @@ services:
     ports:
       - "8082:${DB_PORT}"
     volumes: 
-    - .:/app/
+    - dbdata:/var/lib/postgresql/data
     working_dir: /app
   
 
@@ -67,8 +76,7 @@ services:
       - .env
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
-      API_URL: http://backend:8080
-    # Discord Bot は外部公開しないので ports は不要
+      BACKEND_URL: http://backend:8080
 
     working_dir: /app
     volumes:

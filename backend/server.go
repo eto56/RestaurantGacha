@@ -36,7 +36,7 @@ type DBConfig struct {
 var dbConfig DBConfig
 
 func init() {
-	err := godotenv.Load("../.env")
+	 err := godotenv.Load("../.env")
 
  
 	if err != nil {
@@ -56,10 +56,27 @@ func init() {
 	}
 }
 
+func apiTest(server *http.Server)  error {
+	fmt.Println("API Test")
+	BACKEND_URL := os.Getenv("BACKEND_URL")
+	if BACKEND_URL == "" {
+		log.Fatal("BACKEND_URL is not set")
+	}
+	resp,err := http.Get(BACKEND_URL + "/")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()	
+        return nil
+}
+
 func main() {
 
-	http.HandleFunc("/search", searchHandler)
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/restaurant", searchHandler)
+	fs := http.FileServer(http.Dir("../frontend/dist"))
+	http.Handle("/",fs)
+	//http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/help", helpHandler)
 
 	fmt.Println("Server Start Up........")
 	server := http.Server{
@@ -67,4 +84,10 @@ func main() {
 		Handler: nil,
 	}
 	log.Fatal(server.ListenAndServe())
+	
+	if err := apiTest(&server); err != nil {
+		log.Fatalf("API Test failed: %v", err)
+	} else {
+		fmt.Println("API Test succeeded")
+	}
 }

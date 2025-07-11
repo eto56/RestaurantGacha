@@ -18,6 +18,7 @@ func queryRestaurants(p Query) (*Restaurant, error) {
 		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 			dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode,
 		)
+	fmt.Println("Connecting to database with DSN:", dsn)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func queryRestaurants(p Query) (*Restaurant, error) {
           FROM restaurant
         %s
     `, where)
-
+        fmt.Println("Executing query:", query)
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -74,7 +75,17 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	if err := html.Execute(w, nil); err != nil {
 		log.Fatal(err)
 	}
+	
+}
 
+func helpHandler(w http.ResponseWriter, r *http.Request){
+	html, err := template.ParseFiles("../frontend/public/help.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := html.Execute(w, nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
