@@ -23,7 +23,7 @@ function SearchPage() {
     }
 
     try {
-      const response = await fetch('/search', {
+      const response = await fetch('http://localhost:8080/restaurant', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,7 +6,7 @@ function Help() {
       <h1>Help / ヘルプ</h1>
 
       {/* English Section */}
-      <div className="lang-section">
+      <div className="lang-section" style={{ textAlign: 'left' }}>
         <h2>How to Use (English)</h2>
         <p>This application helps you find a random restaurant based on your search criteria.</p>
         <ol>
@@ -26,7 +26,7 @@ function Help() {
       </div>
 
       {/* Japanese Section */}
-      <div className="lang-section">
+      <div className="lang-section" style={{ textAlign: 'left' }}>
         <h2>使い方 (日本語)</h2>
         <p>このアプリケーションは、検索条件に基づいてランダムにレストランを見つけるのに役立ちます。</p>
         <ol>

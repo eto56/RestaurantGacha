@@ -7,12 +7,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/restaurant': {
-        target: 'http://backend:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
       '/help': {
-        target: 'http://backend:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
