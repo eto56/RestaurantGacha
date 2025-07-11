@@ -1,6 +1,10 @@
 /data/
 *.csv
-*.txt
+ 
 /.env
 /trash/
 /library/
+/todo.md
+
+/output.txt
+
