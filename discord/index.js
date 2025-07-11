@@ -22,10 +22,10 @@ const msghandler = async (msg) => {
   const station = message[0];
   const genre = message[1] || ""; // デフォルトは "all"
   const params = { station, genre };
-  console.log(params);
-
+  console.log("station:", station, "genre:", genre);
+  const backendUrl = process.env.BACKEND_URL || "http://localhost:8080";
   try {
-    const res = await fetch("http://backend:8080/search", {
+    const res = await fetch(backendUrl+"/restaurant", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
@@ -37,6 +37,7 @@ const msghandler = async (msg) => {
 
     await msg.reply(`店名: ${name}\nURL: ${url}`);
   } catch (err) {
+    console.error("Error fetching data:", err);
     await msg.reply("駅名を入力してください。例: !新宿");
   }
 };
