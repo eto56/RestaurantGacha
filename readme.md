@@ -1,4 +1,4 @@
-# Restaurant GACHA - A Multi-Service Application Portfolio Project
+# Restaurant GACHA
 
 This project is a demonstration of a modern, containerized, multi-service application. It's a restaurant search tool that allows users to find a random restaurant ("gacha" style) based on their location and genre preferences, accessible via both a web interface and a Discord bot.
 
