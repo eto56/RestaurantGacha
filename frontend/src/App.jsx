@@ -82,6 +82,7 @@ function SearchPage() {
           </a>
         </div>
       )}
+  Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパーグルメ Webサービス</a>    <a href="http://webservice.recruit.co.jp/"><img src="http://webservice.recruit.co.jp/banner/hotpepper-s.gif" alt="ホットペッパーグルメ Webサービス" width="135" height="17" border="0" title="ホットペッパーグルメ Webサービス" /></a>
     </div>
   );
 }
