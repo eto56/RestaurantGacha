@@ -13,18 +13,7 @@ import (
 	"math/rand/v2"
 )
 
-func queryRestaurants(p Query) (*Restaurant, error) {
-	dsn :=
-		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-			dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode,
-		)
-	fmt.Println("Connecting to database with DSN:", dsn)
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
+func makeQueryline(p Query) (string, []interface{}) {
 	args := []interface{}{p.Station}
 	where := "WHERE station = $1"
 	idx := 2
@@ -44,7 +33,30 @@ func queryRestaurants(p Query) (*Restaurant, error) {
           FROM restaurant
         %s
     `, where)
-        fmt.Println("Executing query:", query)
+	return query, args
+}
+
+func chooseRestaurant(restaurantList []Restaurant) *Restaurant {
+	if len(restaurantList) == 0 {
+		return nil
+	}
+	ind := rand.N(len(restaurantList))
+	return &restaurantList[ind]
+}
+
+func queryRestaurants(p Query) (*Restaurant, error) {
+	dsn :=
+		fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
+			dbConfig.Host, dbConfig.Port, dbConfig.User, dbConfig.Password, dbConfig.DBName, dbConfig.SSLMode,
+		)
+	fmt.Println("Connecting to database with DSN:", dsn)
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+	query, args := makeQueryline(p)
+	fmt.Println("Executing query:", query)
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -62,9 +74,12 @@ func queryRestaurants(p Query) (*Restaurant, error) {
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+	restaurant := chooseRestaurant(res)
+	if restaurant == nil {
+		return nil, fmt.Errorf("no restaurants found for query: %v", p)
+	}
+	return restaurant, nil
 
-	var ind = rand.N(len(res))
-	return &res[ind], nil
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
