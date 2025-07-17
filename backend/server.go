@@ -41,7 +41,7 @@ func init() {
  
 	if err != nil {
 		fmt.Printf("読み込み出来ませんでした: %v", err)
-	}
+	} 
 	port, err := strconv.Atoi(os.Getenv("DB_PORT"))
 	if err != nil {
 		log.Fatalf("invalid DB_PORT: %v", err)
