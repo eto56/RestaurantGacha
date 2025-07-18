@@ -108,7 +108,7 @@ def add_data():
         engine = create_engine(connection_string, echo=False) 
         cols = ['id','name','kana','address','station','genre','subgenre','url']
         df = df[cols]
-
+        df = add_example_data(df)
         df.to_sql(
             name='restaurant',
             con=engine,
@@ -119,7 +119,26 @@ def add_data():
         )
     except Exception as e:
         print(f"Error adding data: {e}")
-        
+
+
+def add_example_data(df):
+    example_data = [
+        {
+            'id': '1',
+            'name': 'Example Restaurant',
+            'kana': 'エグザンプルレストラン',
+            'address': '123 Example St, Tokyo',
+            'station': 'Example',
+            'genre': 'Japanese',
+            'subgenre': 'Sushi',
+            'url': 'http://example.com'
+        }
+    ]
+    new_rows = pd.DataFrame(example_data)
+    df = pd.concat([df, new_rows], ignore_index=True)
+    print("Added example data to DataFrame.")
+
+    return df
 
 def drop_null(df):
     null = df[df['station'].isnull()]

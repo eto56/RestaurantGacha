@@ -45,3 +45,7 @@ This project intentionally uses a variety of technologies to demonstrate versati
     -   A user on the **web frontend** (served on port `8081`) submits a search. The JavaScript makes a `POST` request to the Go backend's `/search` endpoint.
     -   A user in **Discord** types `!新宿 居酒屋`. The bot parses this message and makes a similar `POST` request to the Go backend.
 5.  **Response:** The Go backend queries the PostgreSQL database for all restaurants matching the criteria, randomly selects one, and returns it as a JSON response to either the frontend or the bot.
+
+## Images
+![Example1.png](images/Example1.png)
+![Example2.png](images/Example2.png)
