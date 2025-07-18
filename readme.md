@@ -3,6 +3,10 @@
 This project is a demonstration of a modern, containerized, multi-service application. It's a restaurant search tool that allows users to find a random restaurant ("gacha" style) based on their location and genre preferences, accessible via both a web interface and a Discord bot.
 
 
+## Images
+![Example1.png](images/Example1.png)
+![Example2.png](images/Example2.png)
+
 ## Core Features
 
 -   **Random Restaurant Search:** The core "GACHA" feature returns a single, randomly selected restaurant that matches the user's search criteria.
@@ -45,7 +49,3 @@ This project intentionally uses a variety of technologies to demonstrate versati
     -   A user on the **web frontend** (served on port `8081`) submits a search. The JavaScript makes a `POST` request to the Go backend's `/search` endpoint.
     -   A user in **Discord** types `!新宿 居酒屋`. The bot parses this message and makes a similar `POST` request to the Go backend.
 5.  **Response:** The Go backend queries the PostgreSQL database for all restaurants matching the criteria, randomly selects one, and returns it as a JSON response to either the frontend or the bot.
-
-## Images
-![Example1.png](images/Example1.png)
-![Example2.png](images/Example2.png)
