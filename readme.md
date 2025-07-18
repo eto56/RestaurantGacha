@@ -3,6 +3,10 @@
 This project is a demonstration of a modern, containerized, multi-service application. It's a restaurant search tool that allows users to find a random restaurant ("gacha" style) based on their location and genre preferences, accessible via both a web interface and a Discord bot.
 
 
+## Images
+![Example1.png](images/Example1.png)
+![Example2.png](images/Example2.png)
+
 ## Core Features
 
 -   **Random Restaurant Search:** The core "GACHA" feature returns a single, randomly selected restaurant that matches the user's search criteria.

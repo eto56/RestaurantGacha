@@ -17,11 +17,35 @@ DB_NAME = os.environ["DB_NAME"]
 
 SERVICE_NAME = "db"
 
+
+
+class DatabaseConfig:
+    def __init__(self, db_user, db_pass, db_name, service_name):
+        self.db_user = db_user
+        self.db_pass = db_pass
+        self.db_name = db_name
+        self.service_name = service_name
+
+
+    def get_init_string(self):
+        return f'postgresql://{self.db_user}:{self.db_pass}@{self.service_name}/postgres'
+
+    def get_connection_string(self):
+        return f'postgresql://{self.db_user}:{self.db_pass}@{self.service_name}/{self.db_name}'
+
+
+DBconfig = DatabaseConfig(DB_USER, DB_PASS, DB_NAME, SERVICE_NAME)
+
+
+
 def init_database(): 
-    engine_master = create_engine(f'postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/postgres', echo=True)
-    print(f"connecting to: postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/postgres")
+
+    
+    init_string = DBconfig.get_init_string()
+
+    engine_master = create_engine(init_string, echo=True)
+    print(f"connecting to: {init_string}")
     db_name = DB_NAME   
-    table_name = "restaurant"
     with engine_master.begin() as conn:
   
         conn.execute(text("COMMIT"))
@@ -44,9 +68,12 @@ def init_database():
             print(f"Database '{db_name}' already exists, skipping creation.")
 
     engine_master.dispose()
- 
-    engine_app = create_engine(f'postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/{db_name}', echo=True)
-    print(f"connecting to: postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/{db_name}")
+
+
+def make_table(table_name="restaurant"): 
+    connection_string = DBconfig.get_connection_string()
+    print(f"Connecting to database: {connection_string}")
+    engine_app = create_engine(connection_string, echo=True)
     with engine_app.begin() as conn:
         conn.execute(text(f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
@@ -64,6 +91,8 @@ def init_database():
 
     engine_app.dispose()
 
+
+
 def add_data():
     data_path = "./../data/hotpepper_data.csv"
     db_name = DB_NAME  
@@ -73,13 +102,13 @@ def add_data():
     'sub_genre': 'subgenre'
     })
     df = drop_null(df)
+    connection_string = DBconfig.get_connection_string()
     try:
-        engine = create_engine(f'postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/{db_name}', echo=False)
-        print(f"connecting to: postgresql://{DB_USER}:{DB_PASS}@{SERVICE_NAME}/{db_name}")
-    
+        print (f"Connecting to database: {connection_string}")
+        engine = create_engine(connection_string, echo=False) 
         cols = ['id','name','kana','address','station','genre','subgenre','url']
         df = df[cols]
-
+        df = add_example_data(df)
         df.to_sql(
             name='restaurant',
             con=engine,
@@ -90,7 +119,26 @@ def add_data():
         )
     except Exception as e:
         print(f"Error adding data: {e}")
-        
+
+
+def add_example_data(df):
+    example_data = [
+        {
+            'id': '1',
+            'name': 'Example Restaurant',
+            'kana': 'エグザンプルレストラン',
+            'address': '123 Example St, Tokyo',
+            'station': 'Example',
+            'genre': 'Japanese',
+            'subgenre': 'Sushi',
+            'url': 'http://example.com'
+        }
+    ]
+    new_rows = pd.DataFrame(example_data)
+    df = pd.concat([df, new_rows], ignore_index=True)
+    print("Added example data to DataFrame.")
+
+    return df
 
 def drop_null(df):
     null = df[df['station'].isnull()]
